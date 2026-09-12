@@ -13,5 +13,8 @@
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "latest"
+  },
+  "dependencies": {
+    "hono": "^4.13.7"
   }
 }

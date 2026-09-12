@@ -19,6 +19,7 @@ interface BenchmarkResult {
   accepted: number;
   throttled: number;
   throttleRate: number;
+  hotPartitionThrottleRate: number;
   latency: { p50: number; p95: number; p99: number };
   partitions: Record<string, { requests: number; accepted: number; throttled: number }>;
 }
@@ -94,6 +95,7 @@ async function runPolicy(policy: PolicyMode, options: BenchmarkOptions): Promise
     }
     const metrics = await (await handler(new Request("http://localhost/v1/metrics"))).json() as ReturnType<KvService["metrics"]>;
     const latencies = [...metrics.latencyMs].sort((left, right) => left - right);
+    const hotPartition = Object.values(metrics.partitions).sort((left, right) => right.requests - left.requests)[0];
     return {
       policy,
       config: options,
@@ -101,6 +103,7 @@ async function runPolicy(policy: PolicyMode, options: BenchmarkOptions): Promise
       accepted: metrics.accepted,
       throttled: metrics.throttled,
       throttleRate: metrics.throttleRate,
+      hotPartitionThrottleRate: hotPartition.requests === 0 ? 0 : hotPartition.throttled / hotPartition.requests,
       latency: {
         p50: percentile(latencies, 0.5),
         p95: percentile(latencies, 0.95),
@@ -129,6 +132,7 @@ function printResults(results: BenchmarkResult[]): void {
     accepted: result.accepted,
     throttled: result.throttled,
     throttleRate: `${(result.throttleRate * 100).toFixed(1)}%`,
+    hotPartitionThrottleRate: `${(result.hotPartitionThrottleRate * 100).toFixed(1)}%`,
     p50: `${result.latency.p50}ms`,
     p95: `${result.latency.p95}ms`,
     p99: `${result.latency.p99}ms`
