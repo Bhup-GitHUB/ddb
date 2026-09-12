@@ -97,6 +97,10 @@ export class KvService {
     this.metadata.invalidate();
   }
 
+  partitionRate(partitionId: number): number {
+    return this.admission.getPartitionRate(partitionId);
+  }
+
   private execute(operation: Operation, key: string, value: string | undefined): KvResult {
     const started = this.clock.nowMs();
     const partitionId = partitionForKey(key, this.config.partitionCount);

@@ -7,7 +7,7 @@ function json(data: unknown, status = 200, headers: Record<string, string> = {})
 }
 
 export function createServer(service: KvService, port = 3000): ReturnType<typeof Bun.serve> {
-  return Bun.serve({ port, fetch: createFetchHandler(service) });
+  return Bun.serve({ hostname: "127.0.0.1", port, fetch: createFetchHandler(service) });
 }
 
 export function createFetchHandler(service: KvService): (request: Request) => Response | Promise<Response> {

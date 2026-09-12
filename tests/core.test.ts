@@ -51,4 +51,26 @@ describe("kv service", () => {
     service.get("a");
     expect(service.metrics()).toMatchObject({ metadataRequests: 2, metadataCacheHits: 1, metadataCacheHitRate: 0.5 });
   });
+
+  test("adaptive mode moves capacity toward a sustained hot partition", () => {
+    const clock = new FakeClock();
+    const service = new KvService({
+      partitionCount: 2,
+      partitionCapacityPerSecond: 10,
+      adaptiveIntervalMs: 100,
+      policy: "adaptive"
+    }, clock);
+    const hotKey = "hot";
+    const coldKey = "cold";
+    const hotPartition = service.put(hotKey, "one").partitionId;
+    const coldPartition = hotPartition === 0 ? 1 : 0;
+    for (let index = 0; index < 8; index += 1) service.get(hotKey);
+    service.get(coldKey);
+    clock.advance(100);
+    service.get(hotKey);
+    expect(service.config.partitionCount).toBe(2);
+    const rates = [service.partitionRate(0), service.partitionRate(1)];
+    expect(rates[hotPartition]).toBeGreaterThan(rates[coldPartition]);
+    expect(rates[hotPartition] + rates[coldPartition]).toBe(20);
+  });
 });

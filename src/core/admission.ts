@@ -120,12 +120,12 @@ export class AdmissionController {
     const cold = [...this.partitions].sort((left, right) => left.demand - right.demand);
     const hotState = hot[0];
     const coldState = cold[0];
-    if (!hotState || !coldState || hotState === coldState || hotState.demand <= coldState.demand * 2) {
+    if (!hotState || !coldState || hotState === coldState || hotState.demand <= coldState.demand * 1.25) {
       for (const state of this.partitions) state.demand = 0;
       return;
     }
 
-    const transfer = Math.max(1, Math.floor(coldState.currentRate * 0.25));
+    const transfer = Math.max(1, Math.floor(coldState.currentRate * 0.5));
     const minimumRate = Math.max(1, Math.floor(coldState.baseRate * 0.25));
     if (coldState.currentRate - transfer >= minimumRate) {
       coldState.currentRate -= transfer;
