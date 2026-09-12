@@ -1,0 +1,17 @@
+{
+  "name": "ddb-hot-partition-prototype",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "benchmark": "bun run src/benchmark.ts",
+    "benchmark:compare": "bun run src/benchmark.ts --compare"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "latest"
+  }
+}
